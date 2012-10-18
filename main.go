@@ -2,7 +2,8 @@ package main
 
 import (
 	"flag"
-	"gol"
+	"fmt"
+	// "gol"
 )
 
 var RULES = flag.String("r", "B3/S23", "Set the rules. Default : B3/S23")
@@ -15,6 +16,6 @@ var FILE = flag.String("f", "", "Set the map a the beginning of the game.")
 func main() {
 	flag.Parse()
 	fmt.Println("The rules are", *RULES, "in a world of", *C, "by", *L)
-	born, alive, world, new_world, sides := gol.Init(*RULES, *MAP, *FILE, *C, *L, *CYCLE)
-	gol.Launch(*C, *L, *CYCLE, born, alive, world, new_world, sides)
+	born, alive, world, new_world, sides := Init(*RULES, *MAP, *FILE, *C, *L, *CYCLE)
+	Launch(*C, *L, *CYCLE, born, alive, world, new_world, sides)
 }
