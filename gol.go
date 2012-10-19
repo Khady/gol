@@ -6,6 +6,14 @@ import (
 	"io/ioutil"
 )
 
+type gol struct {
+	world []byte
+	new_world []byte
+	sides [][8]int
+	born []int
+	alive []int
+}
+
 func get_rules(rules string) ([]int, []int) {
 	r := strings.Split(rules, "/")
 	born := make([]int, len(r[0][1:]))
@@ -57,24 +65,24 @@ func is_in(value int, data []int) bool {
 	return in
 }
 
-func cycle(world []byte, new_world []byte, sides [][8]int, born []int, stay_alive []int) []byte {
-	for pos := range world {
-		alive := count_alive(world, sides[pos])
-		if world[pos] == 1 {
-			if is_in(alive, stay_alive) {
-				new_world[pos] = 1
+func cycle(data gol) []byte {
+	for pos := range data.world {
+		alive := count_alive(data.world, data.sides[pos])
+		if data.world[pos] == 1 {
+			if is_in(alive, data.alive) {
+				data.new_world[pos] = 1
 			} else {
-				new_world[pos] = 0
+				data.new_world[pos] = 0
 			}
 		} else {
-			if is_in(alive, born) {
-				new_world[pos] = 1
+			if is_in(alive, data.born) {
+				data.new_world[pos] = 1
 			} else {
-				new_world[pos] = 0
+				data.new_world[pos] = 0
 			}
 		}
 	}
-	return new_world
+	return data.new_world
 }
 
 func dump(world []byte, C, L int) {
@@ -108,21 +116,22 @@ func import_file(f string, world []byte) []byte {
 	return world
 }
 
-func Init(rules, m, f string, c, l, cycle int) (born []int, alive []int, world []byte, new_world []byte, sides [][8]int) {
-	born, alive = get_rules(rules)
-	world = make([]byte, c*l)
-	new_world = make([]byte, c*l)
-	sides = side_cells(c, l)
+func Init(rules, m, f string, c, l, cycle int) (gol) {
+	born, alive := get_rules(rules)
+	world := make([]byte, c*l)
+	new_world := make([]byte, c*l)
+	sides := side_cells(c, l)
 	world = import_map(m, c, l, world)
 	world = import_file(f, world)
-	return born, alive, world, new_world, sides
+	game := gol{world, new_world, sides, born, alive}
+	return game
 }
 
-func Launch(columns, lines, cycles int, born []int, alive []int, world []byte, new_world []byte, sides [][8]int) {
-	dump(world, columns, lines)
+func Launch(columns, lines, cycles int, data gol) {
+	dump(data.world, columns, lines)
 	for i := 0; i < cycles; i++ {
-		new_world = cycle(world, new_world, sides, born, alive)
-		copy(world, new_world)
-		dump(world, columns, lines)
+		data.new_world = cycle(data)
+		copy(data.world, data.new_world)
+		dump(data.world, columns, lines)
 	}
 }
