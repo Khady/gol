@@ -15,6 +15,10 @@ var FILE = flag.String("f", "", "Set the map a the beginning of the game.")
 func main() {
 	flag.Parse()
 	fmt.Println("The rules are", *RULES, "in a world of", *C, "by", *L)
-	game := Init(*RULES, *MAP, *FILE, *C, *L, *CYCLE)
+	err, game := Init(*RULES, *MAP, *FILE, *C, *L, *CYCLE)
+	if err != nil {
+		fmt.Println("Invalid file.")
+		return
+	}
 	Launch(*C, *L, *CYCLE, game)
 }

@@ -94,17 +94,20 @@ func dump(world []byte, C, L int) {
 }
 
 func import_map(m string, c, l int, world []byte) []byte {
-	if len(m) != 0 && len(m) <= ((c+1)*l) + 1 {
-		for i, e := range m {
-			world[i] = byte(e) - 48
+	if len(m) != 0 {
+		for i := range world {
+			world[i] = m[i] - 48
 		}
 	}
 	return world
 }
 
-func import_file(f string, world []byte) []byte {
+func import_file(f string, world []byte) (error, []byte) {
 	if len(f) != 0 {
-		b, _ := ioutil.ReadFile(f)
+		b, err := ioutil.ReadFile(f)
+		if err != nil {
+			return err, world
+		}
 		pos := 0
 		for _, c := range string(b) {
 			if c == '1' || c == '0' {
@@ -113,18 +116,18 @@ func import_file(f string, world []byte) []byte {
 			}
 		}
 	}
-	return world
+	return nil, world
 }
 
-func Init(rules, m, f string, c, l, cycle int) (gol) {
+func Init(rules, m, f string, c, l, cycle int) (error, gol) {
 	born, alive := get_rules(rules)
 	world := make([]byte, c*l)
 	new_world := make([]byte, c*l)
 	sides := side_cells(c, l)
 	world = import_map(m, c, l, world)
-	world = import_file(f, world)
+	err, world := import_file(f, world)
 	game := gol{world, new_world, sides, born, alive}
-	return game
+	return err, game
 }
 
 func Launch(columns, lines, cycles int, data gol) {
