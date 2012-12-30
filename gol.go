@@ -2,16 +2,16 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"io/ioutil"
+	"strings"
 )
 
 type gol struct {
-	world []byte
+	world     []byte
 	new_world []byte
-	sides [][8]int
-	born []int
-	alive []int
+	sides     [][8]int
+	born      []int
+	alive     []int
 }
 
 func get_rules(rules string) ([]int, []int) {
